@@ -1,0 +1,751 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cardápio Digital - Sabor da Casa</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .modal-backdrop {
+            transition: opacity 0.3s ease;
+        }
+
+        .modal-content {
+            transition: transform 0.3s ease;
+        }
+
+        /* Estilo customizado para checkboxes e switches */
+        .custom-checkbox:checked,
+        .custom-radio:checked {
+            background-color: #f97316;
+            border-color: #f97316;
+        }
+
+        .disabled-label {
+            color: #9ca3af;
+        }
+
+        .toggle-checkbox:checked {
+            right: 0;
+            border-color: #4ade80;
+        }
+
+        .toggle-checkbox:checked+.toggle-label {
+            background-color: #4ade80;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-100 text-gray-800">
+
+    <!-- Header -->
+    <header class="bg-white shadow-md sticky top-0 z-40">
+        <div class="container mx-auto px-4 sm:px-6 py-4 flex justify-between items-center">
+            <h1 class="text-2xl sm:text-3xl font-bold text-orange-500">Sabor da Casa</h1>
+            <button id="cart-button" class="relative">
+                <i class="fas fa-shopping-cart text-2xl text-gray-600"></i>
+                <span id="cart-count"
+                    class="absolute -top-2 -right-3 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">0</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-4 sm:px-6 py-8">
+
+        <!-- Banner -->
+        <div class="relative h-64 md:h-80 rounded-xl overflow-hidden mb-8 shadow-lg">
+            <div class="absolute inset-0 bg-cover bg-center"
+                style="background-image: url('https://media.istockphoto.com/id/1493482723/pt/foto/rice-beans-grilled-chicken-steak-salad.jpg?s=612x612&w=0&k=20&c=vRfHmxp7BIOoMf529VtyXGW-Dd7tIWDk4fkFJOI-EoU=');">
+            </div>
+            <div class="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center">
+                <div class="text-center p-4">
+                    <h2 class="text-white text-4xl md:text-6xl font-bold tracking-wider"
+                        style="text-shadow: 2px 2px 4px rgba(0,0,0,0.6);">Sabor da Casa</h2>
+                    <p class="text-white text-lg md:text-xl mt-4" style="text-shadow: 1px 1px 2px rgba(0,0,0,0.8);">A
+                        melhor comida caseira da região, feita com amor.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Marmita Builder Section -->
+        <section id="monte-sua-marmita" class="bg-white p-4 sm:p-6 rounded-xl shadow-lg">
+            <h2 class="text-2xl sm:text-3xl font-bold mb-4 border-l-4 border-orange-500 pl-4">Monte sua Marmita</h2>
+            <div class="mb-6">
+                <h3 class="text-lg sm:text-xl font-semibold mb-3 text-gray-700">Passo 1: Escolha os Acompanhamentos</h3>
+                <div id="acompanhamentos-list"
+                    class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4"></div>
+            </div>
+            <div class="mb-6">
+                <h3 class="text-lg sm:text-xl font-semibold mb-3 text-gray-700">Passo 2: Escolha o Tipo de Carne</h3>
+                <div id="carnes-list" class="grid grid-cols-1 sm:grid-cols-2 gap-4"></div>
+            </div>
+            <button id="fazer-marmita-btn"
+                class="w-full bg-orange-500 text-white py-3 rounded-lg font-bold text-lg mt-4 hover:bg-orange-600 transition-colors"
+                onclick="openMarmitaModal()">Fazer Marmita</button>
+        </section>
+
+        <!-- Extras Section -->
+        <section id="extras" class="mt-12">
+            <h2 class="text-2xl sm:text-3xl font-bold mb-6 border-l-4 border-orange-500 pl-4">Porções Extras</h2>
+            <div id="extras-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+        </section>
+
+        <!-- Especiais do Dia Section -->
+        <section id="especiais" class="mt-12">
+            <h2 class="text-2xl sm:text-3xl font-bold mb-6 border-l-4 border-orange-500 pl-4">Especiais do Dia</h2>
+            <div id="especiais-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"></div>
+        </section>
+
+        <!-- Bebidas Section -->
+        <section id="bebidas" class="mt-12">
+            <h2 class="text-2xl sm:text-3xl font-bold mb-6 border-l-4 border-orange-500 pl-4">Bebidas</h2>
+            <div id="bebidas-list" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"></div>
+        </section>
+    </main>
+
+    <footer class="text-center py-4">
+        <a href="#" id="admin-link" class="text-sm text-gray-500 hover:text-orange-500">Acesso Administrativo</a>
+    </footer>
+
+    <!-- MODALS -->
+
+    <!-- Password Modal -->
+    <div id="passwordModal"
+        class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 hidden modal-backdrop opacity-0">
+        <div class="bg-white rounded-lg p-8 w-11/12 max-w-md modal-content transform scale-95">
+            <h3 class="text-2xl font-bold mb-4">Acesso Administrativo</h3>
+            <p class="mb-4 text-gray-600">Por favor, insira a senha para continuar.</p>
+            <input type="password" id="password-input"
+                class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-400 mb-2">
+            <p id="password-error" class="text-red-500 text-sm hidden mb-4">Senha incorreta!</p>
+            <div class="flex justify-end space-x-4">
+                <button class="py-2 px-4 rounded-lg bg-gray-300 hover:bg-gray-400"
+                    onclick="closeModal('passwordModal')">Cancelar</button>
+                <button class="py-2 px-4 rounded-lg bg-orange-500 text-white hover:bg-orange-600"
+                    onclick="checkPassword()">Entrar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin Panel Modal -->
+    <div id="adminModal" class="fixed inset-0 bg-black bg-opacity-70 z-[60] hidden modal-backdrop opacity-0">
+        <div
+            class="bg-gray-100 w-full max-w-4xl h-full sm:h-auto sm:max-h-[90vh] mx-auto my-0 sm:my-8 rounded-lg shadow-xl flex flex-col modal-content transform scale-95">
+            <div class="p-4 bg-white border-b flex justify-between items-center sticky top-0">
+                <h2 class="text-2xl font-bold text-orange-500">Painel Administrativo</h2>
+                <button class="py-2 px-6 rounded-lg bg-green-500 text-white hover:bg-green-600"
+                    onclick="saveAndCloseAdmin()">Salvar e Fechar</button>
+            </div>
+            <div class="p-4 sm:p-6 flex-grow overflow-y-auto">
+                <!-- Configurações Gerais -->
+                <div class="bg-white p-4 rounded-lg shadow-md mb-6">
+                    <h3 class="text-xl font-semibold mb-4 border-b pb-2">Configurações Gerais</h3>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <div>
+                            <label for="admin-preco-p" class="block text-sm font-medium text-gray-700">Preço Marmita P
+                                (R$)</label>
+                            <input type="number" id="admin-preco-p"
+                                class="mt-1 block w-full p-2 border border-gray-300 rounded-md">
+                        </div>
+                        <div>
+                            <label for="admin-preco-m" class="block text-sm font-medium text-gray-700">Preço Marmita M
+                                (R$)</label>
+                            <input type="number" id="admin-preco-m"
+                                class="mt-1 block w-full p-2 border border-gray-300 rounded-md">
+                        </div>
+                        <div>
+                            <label for="admin-preco-g" class="block text-sm font-medium text-gray-700">Preço Marmita G
+                                (R$)</label>
+                            <input type="number" id="admin-preco-g"
+                                class="mt-1 block w-full p-2 border border-gray-300 rounded-md">
+                        </div>
+                        <div>
+                            <label for="admin-taxa-carne" class="block text-sm font-medium text-gray-700">Taxa Carne
+                                Extra (R$)</label>
+                            <input type="number" id="admin-taxa-carne"
+                                class="mt-1 block w-full p-2 border border-gray-300 rounded-md">
+                        </div>
+                        <div class="flex items-center space-x-4 pt-5">
+                            <label class="flex items-center cursor-pointer">
+                                <span class="mr-3 text-sm font-medium text-gray-900">Por Tamanho</span>
+                                <input type="checkbox" id="admin-tipo-tamanho" class="sr-only peer">
+                                <div
+                                    class="relative w-11 h-6 bg-gray-200 rounded-full peer peer-focus:ring-2 peer-focus:ring-orange-300 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-500">
+                                </div>
+                            </label>
+                        </div>
+                        <div class="flex items-center space-x-4 pt-5">
+                            <label class="flex items-center cursor-pointer">
+                                <span class="mr-3 text-sm font-medium text-gray-900">No Peso</span>
+                                <input type="checkbox" id="admin-tipo-peso" class="sr-only peer">
+                                <div
+                                    class="relative w-11 h-6 bg-gray-200 rounded-full peer peer-focus:ring-2 peer-focus:ring-orange-300 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-500">
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Gerenciamento de Itens -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div id="admin-acompanhamentos" class="bg-white p-4 rounded-lg shadow-md"></div>
+                    <div id="admin-carnes" class="bg-white p-4 rounded-lg shadow-md"></div>
+                    <div id="admin-extras" class="bg-white p-4 rounded-lg shadow-md"></div>
+                    <div id="admin-especiais" class="bg-white p-4 rounded-lg shadow-md"></div>
+                    <div id="admin-bebidas" class="bg-white p-4 rounded-lg shadow-md"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Tamanho da Marmita -->
+    <div id="sizeModal"
+        class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden modal-backdrop opacity-0">
+        <div class="bg-white rounded-lg w-11/12 max-w-lg flex flex-col modal-content transform scale-95"
+            style="max-height: 90vh;">
+            <div class="p-4 sm:p-6 border-b flex-shrink-0">
+                <h3 class="text-2xl font-bold">Finalize sua Marmita</h3>
+            </div>
+
+            <div class="p-4 sm:p-6 flex-grow overflow-y-auto">
+                <div id="marmita-summary" class="bg-gray-100 p-4 rounded-lg mb-4 text-sm"></div>
+                <div id="marmita-type-selector" class="hidden">
+                    <h4 class="font-semibold mb-3">Como deseja montar?</h4>
+                    <div class="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-4 mb-4">
+                        <label class="flex-1 text-center">
+                            <input type="radio" name="marmita_type" value="tamanho" class="hidden peer"
+                                onchange="selectMarmitaType(this.value)">
+                            <div
+                                class="py-2 px-4 rounded-lg border-2 border-gray-300 peer-checked:border-orange-500 peer-checked:bg-orange-100 cursor-pointer">
+                                Por Tamanho</div>
+                        </label>
+                        <label class="flex-1 text-center">
+                            <input type="radio" name="marmita_type" value="peso" class="hidden peer"
+                                onchange="selectMarmitaType(this.value)">
+                            <div
+                                class="py-2 px-4 rounded-lg border-2 border-gray-300 peer-checked:border-orange-500 peer-checked:bg-orange-100 cursor-pointer">
+                                No Peso</div>
+                        </label>
+                    </div>
+                </div>
+                <div id="tamanho-options" class="hidden"></div>
+                <div id="peso-options" class="hidden text-center mt-4">
+                    <p class="text-gray-700 bg-yellow-100 border-l-4 border-yellow-500 p-3 rounded-md">O valor final
+                        será calculado após a pesagem da sua marmita.</p>
+                    <button class="w-full mt-4 bg-green-500 text-white py-2 rounded-lg font-semibold hover:bg-green-600"
+                        onclick="addMarmitaNoPesoToCart()">Adicionar Marmita no Peso</button>
+                </div>
+            </div>
+
+            <div class="p-4 sm:p-6 border-t bg-gray-50 flex-shrink-0">
+                <button class="w-full bg-gray-300 text-gray-800 py-2 rounded-lg hover:bg-gray-400"
+                    onclick="closeModal('sizeModal')">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Carrinho Modal -->
+    <div id="cartModal"
+        class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden modal-backdrop opacity-0">
+        <div class="bg-white rounded-lg shadow-xl w-11/12 max-w-lg flex flex-col modal-content transform scale-95"
+            style="max-height: 90vh;">
+            <div class="flex justify-between items-center p-4 sm:p-6 border-b flex-shrink-0">
+                <h2 class="text-2xl font-bold">Seu Pedido</h2>
+                <button onclick="closeModal('cartModal')"><i class="fas fa-times text-2xl text-gray-500"></i></button>
+            </div>
+            <div class="overflow-y-auto flex-grow">
+                <div id="cart-items-list" class="p-4 sm:p-6">
+                </div>
+                <p id="empty-cart-message" class="text-gray-500 px-4 sm:px-6 hidden">Seu carrinho está vazio.</p>
+                <div id="cart-form-container" class="p-4 sm:p-6 border-t hidden">
+                    <div class="flex justify-between items-center text-xl font-bold mb-4"><span>Total:</span><span
+                            id="cart-total">R$ 0,00</span></div>
+                    <div id="order-form">
+                        <h3 class="text-lg font-semibold mb-2">Forma de Entrega</h3>
+                        <div class="flex space-x-4 mb-4">
+                            <button id="btn-retirada"
+                                class="flex-1 py-2 px-4 rounded-lg border-2 border-orange-500 bg-orange-500 text-white"
+                                onclick="selectDeliveryType('retirada')">Retirada no Local</button>
+                            <button id="btn-entrega"
+                                class="flex-1 py-2 px-4 rounded-lg border-2 border-orange-500 text-orange-500"
+                                onclick="selectDeliveryType('entrega')">Entregar</button>
+                        </div>
+                        <div id="delivery-info" class="hidden space-y-4">
+                            <input type="text" id="client-name" placeholder="Seu Nome Completo"
+                                class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-400">
+                            <input type="text" id="client-address" placeholder="Endereço ou Ponto de Referência"
+                                class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-400">
+                            <textarea id="client-obs" placeholder="Observações (ex: sem cebola, troco para R$50)"
+                                rows="3"
+                                class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-400"></textarea>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div id="cart-footer" class="p-4 sm:p-6 border-t bg-gray-50 rounded-b-lg flex-shrink-0 hidden">
+                <button id="send-order-btn"
+                    class="w-full bg-green-500 text-white py-3 rounded-lg font-bold text-lg hover:bg-green-600 transition-colors"
+                    onclick="sendWhatsAppOrder()">
+                    <i class="fab fa-whatsapp"></i> Enviar Pedido
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Custom Alert Modal -->
+    <div id="alertModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[70] hidden">
+        <div class="bg-white rounded-lg p-8 w-11/12 max-w-sm text-center">
+            <p id="alertMessage" class="text-lg mb-6"></p>
+            <button class="bg-orange-500 text-white py-2 px-6 rounded-lg font-semibold hover:bg-orange-600"
+                onclick="closeAlertModal()">OK</button>
+        </div>
+    </div>
+
+    <script>
+        // --- DADOS E ESTADO DA APLICAÇÃO ---
+        const STORAGE_KEY = 'saborDaCasaMenuData';
+        const DEFAULT_PASSWORD = '2016160';
+        let menuData = {};
+        let cart = [];
+        let currentMarmitaSelections = { acompanhamentos: [], carnes: [] };
+        let deliveryType = 'retirada';
+        const lanchoneteWhatsAppNumber = '5511999998888';
+
+        const defaultData = {
+            acompanhamentos: [
+                { name: 'Feijão', available: true }, { name: 'Arroz', available: true },
+                { name: 'Macarrão', available: true }, { name: 'Farofa', available: true },
+                { name: 'Salada', available: true }
+            ],
+            carnes: [
+                { name: 'Frango Assado', available: true }, { name: 'Boi Assado', available: true },
+                { name: 'Porco Assado', available: true }, { name: 'Boi Cozido', available: true },
+                { name: 'Frango Cozido', available: true }, { name: 'Linguiça Assada', available: true },
+                { name: 'Fígado Acebolado', available: true }, { name: 'Queijo Assado', available: true },
+                { name: 'Peixe Grelhado', available: false }
+            ],
+            extras: [
+                { name: 'Porção de Batata Frita', price: 12.00, available: true },
+                { name: 'Porção de Calabresa', price: 15.00, available: true },
+                { name: 'Salada Extra', price: 7.00, available: true }
+            ],
+            especiais: [
+                { name: 'Lasanha', price: 25.00, available: true },
+                { name: 'Torta de Frango', price: 20.00, available: true },
+                { name: 'Estrogonofe', price: 22.00, available: true },
+                { name: 'Risoto', price: 28.00, available: true }
+            ],
+            bebidas: [
+                { name: 'Coca-Cola Lata', price: 5.00, icon: 'fa-wine-bottle', color: 'text-red-600', available: true },
+                { name: 'Fanta Lata', price: 5.00, icon: 'fa-wine-bottle', color: 'text-orange-500', available: true },
+                { name: 'Coca-Cola 1L', price: 8.00, icon: 'fa-wine-bottle', color: 'text-red-600', available: true },
+                { name: 'Coca-Cola 2L', price: 12.00, icon: 'fa-wine-bottle', color: 'text-red-600', available: true },
+                { name: 'Suco de Laranja', price: 8.00, icon: 'fa-glass-citrus', color: 'text-yellow-500', available: true },
+                { name: 'Suco de Abacaxi', price: 8.00, icon: 'fa-glass-citrus', color: 'text-yellow-400', available: true },
+                { name: 'Suco de Maracujá', price: 8.00, icon: 'fa-glass-citrus', color: 'text-yellow-600', available: true }
+            ],
+            config: {
+                marmitaP: 15.00, marmitaM: 18.00, marmitaG: 22.00,
+                taxaCarneExtra: 2.00,
+                tamanhoEnabled: true,
+                pesoEnabled: true,
+            }
+        };
+
+        // --- INICIALIZAÇÃO ---
+        document.addEventListener('DOMContentLoaded', () => {
+            loadData();
+            renderAllMenus();
+            updateCart();
+            document.getElementById('admin-link').addEventListener('click', (e) => {
+                e.preventDefault();
+                openModal('passwordModal');
+            });
+        });
+
+        function loadData() {
+            const savedData = localStorage.getItem(STORAGE_KEY);
+            try {
+                if (savedData) {
+                    const parsedData = JSON.parse(savedData);
+                    menuData = { ...defaultData, ...parsedData };
+                    menuData.config = { ...defaultData.config, ...parsedData.config };
+                } else {
+                    menuData = JSON.parse(JSON.stringify(defaultData));
+                }
+            } catch (e) {
+                console.error("Could not parse saved data, resetting to default.", e);
+                menuData = JSON.parse(JSON.stringify(defaultData));
+            }
+            saveData();
+        }
+        function saveData() {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(menuData));
+        }
+
+        function renderAllMenus() {
+            const today = new Date().getDay(); // 5 = Sexta
+            const peixe = menuData.carnes.find(c => c.name === 'Peixe Grelhado');
+            if (peixe) peixe.availableToday = (today === 5);
+
+            renderMenuSection('acompanhamentos-list', menuData.acompanhamentos, createAcompanhamentoHTML);
+            renderMenuSection('carnes-list', menuData.carnes, createCarneHTML);
+            renderMenuSection('extras-list', menuData.extras, createPricedItemHTML);
+            renderMenuSection('especiais-list', menuData.especiais, createPricedItemHTML);
+            renderMenuSection('bebidas-list', menuData.bebidas, createBebidaHTML);
+
+            const tamanhoOptionsContainer = document.getElementById('tamanho-options');
+            tamanhoOptionsContainer.innerHTML = `
+                 <h4 class="font-semibold mb-2 mt-4">Escolha o Tamanho:</h4>
+                 <p class="text-sm text-gray-500 mb-3">(Inclui até 2 porções de carne. Custo de R$ ${menuData.config.taxaCarneExtra.toFixed(2)} por porção extra)</p>
+                <div class="space-y-4">
+                    <button class="w-full text-left p-4 border rounded-lg flex justify-between items-center hover:bg-gray-100" onclick="addMarmitaToCart('P', ${menuData.config.marmitaP})">
+                        <span>Pequena (P)</span><span class="font-bold text-orange-500">R$ ${menuData.config.marmitaP.toFixed(2)}</span>
+                    </button>
+                    <button class="w-full text-left p-4 border rounded-lg flex justify-between items-center hover:bg-gray-100" onclick="addMarmitaToCart('M', ${menuData.config.marmitaM})">
+                        <span>Média (M)</span><span class="font-bold text-orange-500">R$ ${menuData.config.marmitaM.toFixed(2)}</span>
+                    </button>
+                    <button class="w-full text-left p-4 border rounded-lg flex justify-between items-center hover:bg-gray-100" onclick="addMarmitaToCart('G', ${menuData.config.marmitaG})">
+                        <span>Grande (G)</span><span class="font-bold text-orange-500">R$ ${menuData.config.marmitaG.toFixed(2)}</span>
+                    </button>
+                </div>`;
+        }
+        function renderMenuSection(containerId, data, htmlFunction) {
+            const container = document.getElementById(containerId);
+            container.innerHTML = '';
+            data.filter(item => item.available).forEach(item => {
+                container.innerHTML += htmlFunction(item);
+            });
+        }
+
+        // Funções de Geração de HTML para o menu do cliente
+        const createAcompanhamentoHTML = item => `<label class="flex items-center space-x-2 cursor-pointer"><input type="checkbox" name="acompanhamento" value="${item.name}" class="h-5 w-5 rounded border-gray-300 custom-checkbox"><span>${item.name}</span></label>`;
+        const createCarneHTML = item => {
+            const isDisabled = item.name === 'Peixe Grelhado' && !item.availableToday;
+            return `<div class="flex items-center justify-between p-2 border rounded-lg ${isDisabled ? 'bg-gray-100' : ''}">
+                        <label class="flex items-center space-x-2 ${isDisabled ? 'cursor-not-allowed' : 'cursor-pointer'} flex-grow">
+                            <input type="checkbox" name="carne" value="${item.name}" onchange="toggleQuantity(this)" ${isDisabled ? 'disabled' : ''} class="h-5 w-5 rounded border-gray-300 custom-checkbox">
+                            <span class="${isDisabled ? 'disabled-label' : ''}">${item.name} ${item.name === 'Peixe Grelhado' ? '(Só Sexta)' : ''}</span>
+                        </label>
+                        <div class="flex items-center space-x-2 hidden" data-meat-selector="${item.name}">
+                            <button type="button" class="w-7 h-7 rounded-full bg-red-500 text-white flex items-center justify-center font-bold" onclick="changeMeatQuantity(this, -1)">-</button>
+                            <span class="font-bold w-8 text-center text-lg" data-meat-quantity="${item.name}">1</span>
+                            <button type="button" class="w-7 h-7 rounded-full bg-green-500 text-white flex items-center justify-center font-bold" onclick="changeMeatQuantity(this, 1)">+</button>
+                        </div>
+                    </div>`;
+        };
+        const createPricedItemHTML = item => `
+            <div class="menu-item bg-white rounded-xl shadow-md p-4 flex justify-between items-center" data-name="${item.name}" data-price="${item.price}">
+                <div><h3 class="font-semibold text-lg">${item.name}</h3><p class="text-gray-600">R$ ${item.price.toFixed(2)}</p></div>
+                <button class="bg-blue-500 text-white py-2 px-4 rounded-lg text-sm font-semibold hover:bg-blue-600" onclick="addToCart(this)">Adicionar</button>
+            </div>`;
+        const createBebidaHTML = item => `
+            <div class="menu-item text-center bg-white rounded-xl shadow-md p-4" data-name="${item.name}" data-price="${item.price}">
+                <i class="fas ${item.icon} text-4xl ${item.color} mb-2"></i>
+                <h3 class="font-semibold">${item.name}</h3><p class="text-gray-600">R$ ${item.price.toFixed(2)}</p>
+                <button class="mt-2 w-full bg-blue-500 text-white py-1 px-3 rounded-lg text-sm font-semibold hover:bg-blue-600" onclick="addToCart(this)">Adicionar</button>
+            </div>`;
+
+        // Funções de montagem da marmita e modals
+        function changeMeatQuantity(button, amount) {
+            const quantitySpan = button.parentElement.querySelector('span');
+            let currentQuantity = parseInt(quantitySpan.innerText, 10);
+            currentQuantity = Math.max(1, currentQuantity + amount);
+            quantitySpan.innerText = currentQuantity;
+        }
+        function toggleQuantity(checkbox) {
+            const quantitySelector = document.querySelector(`[data-meat-selector="${checkbox.value}"]`);
+            quantitySelector.classList.toggle('hidden', !checkbox.checked);
+            if (!checkbox.checked) quantitySelector.querySelector('span').innerText = '1';
+        }
+        function openMarmitaModal() {
+            const acompanhamentosChecked = document.querySelectorAll('input[name="acompanhamento"]:checked');
+            const carnesChecked = document.querySelectorAll('input[name="carne"]:checked');
+            if (acompanhamentosChecked.length === 0) { showAlert('Escolha pelo menos um acompanhamento.'); return; }
+            if (carnesChecked.length === 0) { showAlert('Escolha pelo menos uma carne.'); return; }
+
+            currentMarmitaSelections.acompanhamentos = Array.from(acompanhamentosChecked).map(el => el.value);
+            currentMarmitaSelections.carnes = Array.from(carnesChecked).map(checkbox => ({
+                name: checkbox.value,
+                quantity: parseInt(document.querySelector(`[data-meat-quantity="${checkbox.value}"]`).innerText, 10)
+            }));
+
+            const summaryEl = document.getElementById('marmita-summary');
+            let summaryHTML = '<div><h5 class="font-bold">Carnes:</h5><ul class="list-disc list-inside text-sm">';
+            currentMarmitaSelections.carnes.forEach(item => summaryHTML += `<li>${item.quantity}x ${item.name}</li>`);
+            summaryHTML += '</ul></div><div class="mt-2"><h5 class="font-bold">Acompanhamentos:</h5><p class="text-sm text-gray-700">';
+            summaryHTML += currentMarmitaSelections.acompanhamentos.join(', ');
+            summaryHTML += '</p></div>';
+            summaryEl.innerHTML = summaryHTML;
+
+            const { tamanhoEnabled, pesoEnabled } = menuData.config;
+            const typeSelector = document.getElementById('marmita-type-selector');
+            const tamanhoOptions = document.getElementById('tamanho-options');
+            const pesoOptions = document.getElementById('peso-options');
+
+            typeSelector.classList.toggle('hidden', !(tamanhoEnabled && pesoEnabled));
+
+            if (!tamanhoEnabled && !pesoEnabled) { showAlert('Nenhum tipo de marmita está ativado. Fale com o administrador.'); return; }
+            if (tamanhoEnabled && !pesoEnabled) {
+                tamanhoOptions.classList.remove('hidden');
+                pesoOptions.classList.add('hidden');
+            } else if (!tamanhoEnabled && pesoEnabled) {
+                tamanhoOptions.classList.add('hidden');
+                pesoOptions.classList.remove('hidden');
+            }
+            openModal('sizeModal');
+        }
+        function selectMarmitaType(type) {
+            document.getElementById('tamanho-options').classList.toggle('hidden', type !== 'tamanho');
+            document.getElementById('peso-options').classList.toggle('hidden', type !== 'peso');
+        }
+        function addMarmitaToCart(size, basePrice) {
+            const totalCarnePieces = currentMarmitaSelections.carnes.reduce((sum, carne) => sum + carne.quantity, 0);
+            const extraCost = totalCarnePieces > 2 ? (totalCarnePieces - 2) * menuData.config.taxaCarneExtra : 0;
+            const finalPrice = basePrice + extraCost;
+            cart.push({ id: Date.now(), name: `Marmita ${size}`, price: finalPrice, quantity: 1, carnes: currentMarmitaSelections.carnes, acompanhamentos: currentMarmitaSelections.acompanhamentos });
+            updateCart();
+            closeModal('sizeModal');
+        }
+        function addMarmitaNoPesoToCart() {
+            cart.push({ id: Date.now(), name: "Marmita no Peso", price: 0, quantity: 1, carnes: currentMarmitaSelections.carnes, acompanhamentos: currentMarmitaSelections.acompanhamentos, isPeso: true });
+            updateCart();
+            closeModal('sizeModal');
+        }
+
+        // Funções do Carrinho
+        function addToCart(button) {
+            const menuItem = button.closest('.menu-item');
+            const itemName = menuItem.dataset.name, itemPrice = parseFloat(menuItem.dataset.price);
+            const existingItem = cart.find(item => item.name === itemName);
+            if (existingItem) existingItem.quantity++; else cart.push({ id: Date.now(), name: itemName, price: itemPrice, quantity: 1 });
+            updateCart();
+        }
+        function updateCart() {
+            const cartItemsListEl = document.getElementById('cart-items-list');
+            const emptyCartMessageEl = document.getElementById('empty-cart-message');
+            const cartFormContainerEl = document.getElementById('cart-form-container');
+            const cartFooterEl = document.getElementById('cart-footer');
+            const cartCountEl = document.getElementById('cart-count');
+            const cartTotalEl = document.getElementById('cart-total');
+
+            emptyCartMessageEl.classList.toggle('hidden', cart.length > 0);
+            cartFormContainerEl.classList.toggle('hidden', cart.length === 0);
+            cartFooterEl.classList.toggle('hidden', cart.length === 0);
+
+            cartItemsListEl.innerHTML = '';
+            if (cart.length > 0) {
+                cart.forEach(item => {
+                    let descHTML = '';
+                    if (item.carnes) {
+                        const carnesDesc = item.carnes.map(c => `${c.quantity}x ${c.name}`).join(', ');
+                        const acompDesc = item.acompanhamentos.join(', ');
+                        descHTML = `<p class="text-xs text-gray-500 font-semibold">${carnesDesc}</p><p class="text-xs text-gray-500">Acomp: ${acompDesc}</p>`;
+                    }
+                    const itemEl = document.createElement('div');
+                    itemEl.className = 'flex justify-between items-center mb-4';
+                    itemEl.innerHTML = `<div><p class="font-semibold">${item.name}</p>${descHTML}<p class="text-sm font-bold text-orange-600">${item.isPeso ? 'Valor a combinar' : `R$ ${item.price.toFixed(2)}`}</p></div>
+                                    <div class="flex items-center space-x-3"><button class="text-gray-500" onclick="changeQuantity(${item.id}, -1)"><i class="fas fa-minus-circle"></i></button><span class="font-bold">${item.quantity}</span><button class="text-gray-500" onclick="changeQuantity(${item.id}, 1)"><i class="fas fa-plus-circle"></i></button><button class="text-red-500 ml-3" onclick="removeFromCart(${item.id})"><i class="fas fa-trash-alt"></i></button></div>`;
+                    cartItemsListEl.appendChild(itemEl);
+                });
+            }
+
+            const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+            if (cartCountEl) cartCountEl.innerText = totalItems;
+            const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            if (cartTotalEl) cartTotalEl.innerText = `R$ ${total.toFixed(2)}`;
+        }
+        function changeQuantity(itemId, amount) {
+            const item = cart.find(i => i.id === itemId);
+            if (item) {
+                item.quantity += amount;
+                if (item.quantity <= 0) removeFromCart(itemId);
+            }
+            updateCart();
+        }
+        function removeFromCart(itemId) {
+            cart = cart.filter(item => item.id !== itemId);
+            updateCart();
+        }
+        document.getElementById('cart-button').addEventListener('click', () => {
+            updateCart();
+            openModal('cartModal');
+        });
+        function selectDeliveryType(type) {
+            deliveryType = type;
+            document.getElementById('delivery-info').classList.toggle('hidden', type !== 'entrega');
+            document.getElementById('btn-entrega').classList.toggle('bg-orange-500', type === 'entrega');
+            document.getElementById('btn-entrega').classList.toggle('text-white', type === 'entrega');
+            document.getElementById('btn-entrega').classList.toggle('text-orange-500', type !== 'entrega');
+            document.getElementById('btn-retirada').classList.toggle('bg-orange-500', type === 'retirada');
+            document.getElementById('btn-retirada').classList.toggle('text-white', type === 'retirada');
+            document.getElementById('btn-retirada').classList.toggle('text-orange-500', type !== 'retirada');
+        }
+        function sendWhatsAppOrder() {
+            if (cart.length === 0) { showAlert('Seu carrinho está vazio!'); return; }
+            let message = '*=== NOVO PEDIDO ===*\n\n*Itens:*\n';
+            let hasPesoItem = cart.some(item => item.isPeso);
+            cart.forEach(item => {
+                const priceText = item.isPeso ? 'VALOR A COMBINAR' : `R$ ${item.price.toFixed(2)}`;
+                message += `*${item.quantity}x ${item.name}* - ${priceText}\n`;
+                if (item.carnes) message += `  - Carnes: ${item.carnes.map(c => `${c.quantity}x ${c.name}`).join(', ')}\n`;
+                if (item.acompanhamentos) message += `  - Acomp: ${item.acompanhamentos.join(', ')}\n`;
+                message += '\n';
+            });
+            const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            message += `\n*Subtotal: R$ ${total.toFixed(2)}*\n`;
+            if (hasPesoItem) message += `*Atenção:* O pedido contém itens a serem pesados. O valor final será confirmado.\n`;
+            message += `\n*Forma de Entrega: ${deliveryType === 'retirada' ? 'Retirada no Local' : 'Entregar'}*\n`;
+            if (deliveryType === 'entrega') {
+                const name = document.getElementById('client-name').value, address = document.getElementById('client-address').value, obs = document.getElementById('client-obs').value;
+                if (!name || !address) { showAlert('Preencha nome e endereço para entrega.'); return; }
+                message += `*Cliente:* ${name}\n*Endereço:* ${address}\n`;
+                if (obs) message += `*Observação:* ${obs}\n`;
+            }
+            window.open(`https://api.whatsapp.com/send?phone=${lanchoneteWhatsAppNumber}&text=${encodeURIComponent(message)}`, '_blank');
+        }
+
+        // --- Funções Genéricas de Modal ---
+        function openModal(modalId) {
+            const modal = document.getElementById(modalId);
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                modal.classList.add('opacity-100');
+                modal.querySelector('.modal-content').classList.remove('scale-95');
+                modal.querySelector('.modal-content').classList.add('scale-100');
+            }, 10);
+        }
+        function closeModal(modalId) {
+            const modal = document.getElementById(modalId);
+            modal.classList.remove('opacity-100');
+            modal.querySelector('.modal-content').classList.remove('scale-100');
+            modal.querySelector('.modal-content').classList.add('scale-95');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                if (modalId === 'sizeModal') {
+                    document.getElementById('tamanho-options').classList.add('hidden');
+                    document.getElementById('peso-options').classList.add('hidden');
+                    document.getElementById('marmita-type-selector').classList.add('hidden');
+                    document.querySelectorAll('input[name="marmita_type"]').forEach(radio => radio.checked = false);
+                    document.querySelectorAll('input[name="carne"]:checked').forEach(c => c.click());
+                    document.querySelectorAll('input[name="acompanhamento"]:checked').forEach(c => c.checked = false);
+                }
+            }, 300);
+        }
+
+        // --- Funções do Painel Admin ---
+        function checkPassword() {
+            const input = document.getElementById('password-input');
+            if (input.value === DEFAULT_PASSWORD) {
+                closeModal('passwordModal');
+                input.value = '';
+                openModal('adminModal');
+                populateAdminPanel();
+            } else {
+                document.getElementById('password-error').classList.remove('hidden');
+            }
+        }
+        function saveAndCloseAdmin() {
+            menuData.config.marmitaP = parseFloat(document.getElementById('admin-preco-p').value) || 0;
+            menuData.config.marmitaM = parseFloat(document.getElementById('admin-preco-m').value) || 0;
+            menuData.config.marmitaG = parseFloat(document.getElementById('admin-preco-g').value) || 0;
+            menuData.config.taxaCarneExtra = parseFloat(document.getElementById('admin-taxa-carne').value) || 0;
+            menuData.config.tamanhoEnabled = document.getElementById('admin-tipo-tamanho').checked;
+            menuData.config.pesoEnabled = document.getElementById('admin-tipo-peso').checked;
+
+            saveData();
+            closeModal('adminModal');
+            renderAllMenus();
+            showAlert('Cardápio atualizado com sucesso!');
+        }
+        function populateAdminPanel() {
+            document.getElementById('admin-preco-p').value = menuData.config.marmitaP.toFixed(2);
+            document.getElementById('admin-preco-m').value = menuData.config.marmitaM.toFixed(2);
+            document.getElementById('admin-preco-g').value = menuData.config.marmitaG.toFixed(2);
+            document.getElementById('admin-taxa-carne').value = menuData.config.taxaCarneExtra.toFixed(2);
+            document.getElementById('admin-tipo-tamanho').checked = menuData.config.tamanhoEnabled;
+            document.getElementById('admin-tipo-peso').checked = menuData.config.pesoEnabled;
+
+            createAdminSection('acompanhamentos', 'Acompanhamentos', menuData.acompanhamentos, false);
+            createAdminSection('carnes', 'Carnes', menuData.carnes, false);
+            createAdminSection('extras', 'Porções Extras', menuData.extras, true);
+            createAdminSection('especiais', 'Especiais do Dia', menuData.especiais, true);
+            createAdminSection('bebidas', 'Bebidas', menuData.bebidas, true);
+        }
+        function createAdminSection(key, title, dataArray, hasPrice) {
+            const container = document.getElementById(`admin-${key}`);
+            let listHTML = `<h3 class="text-xl font-semibold mb-2 border-b pb-2">${title}</h3>`;
+            dataArray.forEach((item, index) => {
+                listHTML += `
+                    <div class="flex items-center justify-between py-2">
+                        <span class="truncate pr-2">${item.name} ${hasPrice ? `(R$ ${item.price.toFixed(2)})` : ''}</span>
+                        <div class="flex items-center space-x-3 flex-shrink-0">
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" ${item.available ? 'checked' : ''} class="sr-only peer" onchange="toggleItemAvailability('${key}', ${index})">
+                                <div class="w-11 h-6 bg-gray-200 rounded-full peer peer-focus:ring-2 peer-focus:ring-orange-300 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-500"></div>
+                            </label>
+                            <button class="text-red-500 hover:text-red-700" onclick="deleteItem('${key}', ${index})"><i class="fas fa-trash"></i></button>
+                        </div>
+                    </div>`;
+            });
+            container.innerHTML = listHTML +
+                `<div class="mt-4 pt-4 border-t">
+                    <div class="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2">
+                        <input type="text" id="new-name-${key}" placeholder="Novo ${title.slice(0, -1)}" class="flex-grow p-2 border rounded">
+                        ${hasPrice ? '<input type="number" step="0.01" id="new-price-' + key + '" placeholder="Preço" class="sm:w-1/3 p-2 border rounded">' : ''}
+                        <button class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600" onclick="addItem('${key}', ${hasPrice})">Add</button>
+                    </div>
+                </div>`;
+        }
+        function addItem(key, hasPrice) {
+            const nameInput = document.getElementById(`new-name-${key}`);
+            const name = nameInput.value;
+            if (!name) { showAlert('O nome não pode ser vazio.'); return; }
+            const newItem = { name: name, available: true };
+            if (hasPrice) {
+                const priceInput = document.getElementById(`new-price-${key}`);
+                const price = parseFloat(priceInput.value);
+                if (isNaN(price) || price < 0) { showAlert('Por favor, insira um preço válido.'); return; }
+                newItem.price = price;
+                if (key === 'bebidas') {
+                    newItem.icon = 'fa-glass-martini-alt'; newItem.color = 'text-gray-500';
+                }
+                priceInput.value = '';
+            }
+            menuData[key].push(newItem);
+            nameInput.value = '';
+            populateAdminPanel();
+        }
+        function deleteItem(key, index) {
+            if (confirm(`Tem certeza que deseja remover "${menuData[key][index].name}"?`)) {
+                menuData[key].splice(index, 1);
+                populateAdminPanel();
+            }
+        }
+        function toggleItemAvailability(key, index) {
+            menuData[key][index].available = !menuData[key][index].available;
+        }
+
+        function showAlert(msg) {
+            const modal = document.getElementById('alertModal');
+            document.getElementById('alertMessage').innerText = msg;
+            modal.classList.remove('hidden');
+            setTimeout(() => modal.classList.add('opacity-100'), 10);
+        }
+        function closeAlertModal() {
+            const modal = document.getElementById('alertModal');
+            modal.classList.remove('opacity-100');
+            setTimeout(() => modal.classList.add('hidden'), 300);
+        }
+    </script>
+</body>
+
+</html>
